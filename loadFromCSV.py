@@ -12,9 +12,16 @@ load = {}
 load['name'] = []
 load['donor'] = []
 load['price'] = []
+load['desc'] = []
+load['imgurl'] = []
+load['openTimeNew'] = []
+load['openDateNew'] = []
+load['closeTimeNew'] = []
+load['closeDateNew'] = []
+
 
 #load to dictionary
-loadReader = csv.DictReader(open(fileName, 'r'), fieldnames = ['name', 'donor', 'price'], delimiter = ',', quotechar = '"')
+loadReader = csv.DictReader(open(fileName, 'r'), fieldnames = ['name', 'donor', 'price', 'desc', 'imgurl', 'openTimeNew', 'openDateNew', 'closeTimeNew', 'closeDateNew'], delimiter = ',', quotechar = '"')
 
 for row in loadReader:
 	for key in row:
@@ -24,50 +31,49 @@ for row in loadReader:
 # Convert times to rest API format
 # -------------------------------------------------------------------
 
-openDate = "2015-11-07"
-openTimeRaw = "00:00"
+# date format:	"2015-11-07"
+# time format:	"23:59" (24 hour time)
 
-closeDate = "2015-12-07"
-closeTimeRaw = "23:59"
 
 # Process date/time into correct formats
-	# html date output: YYYY-MM-DD
-	# html time output: HH(24):MM
 
-openYear = int(openDate[0:4])
-openMonth = int(openDate[5:7])
-openDay = int(openDate[8:10])
-openHour = int(openTimeRaw[0:2])
-openMin = int(openTimeRaw[3:5])
+openTime = []
+closeTime = []
 
-closeYear = int(closeDate[0:4])
-closeMonth = int(closeDate[5:7])
-closeDay = int(closeDate[8:10])
-closeHour = int(closeTimeRaw[0:2])
-closeMin = int(closeTimeRaw[3:5])
-
-
-openTime = datetime.datetime(openYear,openMonth,openDay,openHour,openMin).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-closeTime = datetime.datetime(closeYear,closeMonth,closeDay,closeHour,closeMin).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-
-
-
-# use white image, bulk description. Load these from CSV in future
-img = "https://flordemilonga.files.wordpress.com/2009/12/blank-white-page.jpg"
-desc = "testUpload"
-
-
-# print details and then create objects in parse
 for i in range(1,len(load['name'])):
-	print("name:", load['name'][i])
-	print("donor:", load['donor'][i])
-	print("price:", load['price'][i])
+	openYear = int(load['openDateNew'][i][0:4])
+	openMonth = int(load['openDateNew'][i][5:7])
+	openDay = int(load['openDateNew'][i][8:10])
+	openHour = int(load['openTimeNew'][i][0:2])+5
+	openMin = int(load['openTimeNew'][i][3:5])
+
+	closeYear = int(load['closeDateNew'][i][0:4])
+	closeMonth = int(load['closeDateNew'][i][5:7])
+	closeDay = int(load['closeDateNew'][i][8:10])
+	closeHour = int(load['closeTimeNew'][i][0:2])+5
+	closeMin = int(load['closeTimeNew'][i][3:5])
+
+	openTime.append(datetime.datetime(openYear,openMonth,openDay,openHour,openMin).strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
+	closeTime.append(datetime.datetime(closeYear,closeMonth,closeDay,closeHour,closeMin).strftime('%Y-%m-%dT%H:%M:%S.%fZ'))
+
+
+# print details and then create objects in Parse
+for i in range(1,len(load['name'])):
+	print("name:  %s" % load['name'][i])
+	print("donor:  %s" % load['donor'][i])
+	print("price:  %s" % load['price'][i])
+	print("desc:  %s" % load['desc'][i])
+	print("imgurl:  %s" % load['imgurl'][i])
+	print("openTime:  %s" % openTime[i-1])
+	print("closeTime:  %s" % closeTime[i-1])
 	
 	name = load['name'][i]
 	donor = load['donor'][i]
 	price = load['price'][i]
+	desc = load['desc'][i]
+	img = load['imgurl'][i]
 	
-	print(createObject.create(name, desc, donor, float(price), img, openTime, closeTime))
+	print(createObject.create(name, desc, donor, float(price), img, openTime[i-1], closeTime[i-1]))
 	print("")
 
 
